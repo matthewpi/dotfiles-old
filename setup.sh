@@ -25,13 +25,13 @@ fi
 yum update -y
 
 # Install EPEL Release
-yum install epel-release
+yum install epel-release -y
 
 # Install HTOP
-yum install htop
+yum install htop -y
 
 # Install ZSH
-yum install zsh
+yum install zsh -y
 
 # Install NGINX if it is not installed
 if rpm -q "nginx" &> /dev/null; then
