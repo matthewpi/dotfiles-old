@@ -1,23 +1,34 @@
 #!/bin/bash
 
+print() {
+    echo -e $1
+}
+
+command_exists() {
+    command -v "$@" >/dev/null 2>&1
+}
+
 # Root User Detection
 if [ "$EUID" -ne 0 ]; then
-    echo -e "This script must be ran as the root user."
+    print "This script must be ran as the root user."
     exit 1
 fi
+
+# Make the HOME variable use the proper user directory
+HOME="/home/$SUDO_USER"
 
 # OS Detection
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS=$ID
 else
-    echo -e "Unable to detect operating system."
+    print "Unable to detect operating system."
     exit 1
 fi
 
 # Because I'm a stuck-up asshole who only supports RHEL based OSes
 if [ "$OS" != "rhel" ] && [ "$OS" != "fedora" ] && [ "$OS" != "centos" ]; then
-    echo -e "You must be on a RHEL based operating system to use this."
+    print "You must be on a RHEL based operating system to use this."
     exit 1
 fi
 
@@ -25,24 +36,58 @@ fi
 yum update -y
 
 # Install EPEL Release
-yum install epel-release -y
+rpm -q "epel-release" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing epel-release"
+    yum install epel-release -y > /dev/null
+fi
 
-# Install HTOP
-yum install htop -y
+# Install Git
+rpm -q "git" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing git"
+    yum install git -y > /dev/null
+fi
+
+# Install htop
+rpm -q "htop" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing htop"
+    yum install htop -y > /dev/null
+fi
 
 # Install ZSH
-yum install zsh -y
+rpm -q "zsh" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing zsh"
+    yum install zsh -y > /dev/null
+fi
 
-# Install NGINX if it is not installed
-if rpm -q "nginx" &> /dev/null; then
-    echo -e "Installing NGINX"
-	NGINX_REPO=`[nginx-mainline]
-name=NGINX Mainline Repo
-baseurl=http://nginx.org/packages/mainline/centos/$releasever/$basearch/
-gpgcheck=1
-enabled=1
-gpgkey=https://nginx.org/keys/nginx_signing.key`
-	echo $NGINX_REPO > /etc/yum.repos.d/nginx-mainline.repo
+# Install oh-my-zsh
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    print "Installing oh-my-zsh"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
 
-	yum install nginx -y
+    # Spaceship Prompt
+    git clone https://github.com/denysdovhan/spaceship-prompt.git "$HOME/.oh-my-zsh/custom/themes/spaceship-prompt"
+    ln -s "$HOME/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "$HOME/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
+
+    # Setup the .zshrc config
+    rm $HOME/.zshrc -f
+    curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.zshrc --silent --output $HOME/.zshrc
+
+    # Set ZSH as user's shell
+    chsh -s $(which zsh)
+fi
+
+# Install NGINX
+rpm -q "nginx" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing NGINX"
+
+    # Add the NGINX Repo File
+    printf "[nginx-mainline]\nname=NGINX Mainline Repo\nbaseurl=http://nginx.org/packages/mainline/centos/\$releasever/\$basearch/\ngpgcheck=1\nenabled=1\ngpgkey=https://nginx.org/keys/nginx_signing.key\n" > /etc/yum.repos.d/nginx-mainline.repo
+
+    yum update -y
+    yum install nginx -y
 fi
