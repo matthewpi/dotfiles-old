@@ -45,6 +45,20 @@ fi
 # Update any packages
 yum update -y
 
+# Install Curl
+rpm -q "curl" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing curl"
+    yum install curl -y > /dev/null
+fi
+
+# Install wget
+rpm -q "wget" &> /dev/null
+if [ $? -ne 0 ]; then
+    print "Installing wget"
+    yum install wget -y > /dev/null
+fi
+
 # Install Git
 rpm -q "git" &> /dev/null
 if [ $? -ne 0 ]; then
@@ -65,6 +79,12 @@ if [ $? -ne 0 ]; then
     print "Installing zsh"
     yum install zsh -y > /dev/null
 fi
+
+# Download starship
+mkdir -p $HOME/.local/bin
+wget https://github.com/starship/starship/releases/download/v0.18.0/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
+tar xvzf $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
+mv x86_64-unknown-linux-gnu/starship $HOME/.local/bin/starship
 
 # Add .bashrc
 mv $HOME/.bashrc $HOME/.bashrc_original
