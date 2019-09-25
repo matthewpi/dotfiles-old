@@ -88,6 +88,12 @@ mv $HOME/x86_64-unknown-linux-gnu/starship $HOME/.local/bin/starship
 rm $HOME/x86_64-unknown-linux-gnu -rf
 rm $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz -rf
 
+# Install oh-my-zsh
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    print "Installing oh-my-zsh"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
+fi
+
 # Add .bashrc
 mv $HOME/.bashrc $HOME/.bashrc_original || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.bashrc --silent --output $HOME/.bashrc

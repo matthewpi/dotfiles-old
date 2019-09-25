@@ -1,4 +1,8 @@
 # Matthew's .zshrc (oh my zsh)
+export ZSH=$HOME/.oh-my-zsh
+
+# Initialize oh-my-zsh
+source $ZSH/oh-my-zsh.sh
 
 # Environment Variables
 PATH="/usr/local/go/bin:$HOME/.local/bin:$HOME/bin:$HOME/.bin:/usr/bin:$PATH"
