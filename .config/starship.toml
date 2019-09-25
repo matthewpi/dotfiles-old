@@ -1,0 +1,7 @@
+# ~/.config/starship.toml
+
+[hostname]
+disabled = true
+
+[username]
+disabled = true

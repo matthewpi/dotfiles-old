@@ -42,6 +42,9 @@ if [ $? -ne 0 ]; then
     yum install epel-release -y > /dev/null
 fi
 
+# Update any packages
+yum update -y
+
 # Install Git
 rpm -q "git" &> /dev/null
 if [ $? -ne 0 ]; then
@@ -63,31 +66,24 @@ if [ $? -ne 0 ]; then
     yum install zsh -y > /dev/null
 fi
 
-# Install oh-my-zsh
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    print "Installing oh-my-zsh"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
+# Add .bashrc
+mv $HOME/.bashrc $HOME/.bashrc_original
+curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.bashrc --silent --output $HOME/.bashrc
 
-    # Spaceship Prompt
-    git clone https://github.com/denysdovhan/spaceship-prompt.git "$HOME/.oh-my-zsh/custom/themes/spaceship-prompt"
-    ln -s "$HOME/.oh-my-zsh/custom/themes/spaceship-prompt/spaceship.zsh-theme" "$HOME/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
+# Add .hushlogin
+touch $HOME/.hushlogin
 
-    # Setup the .zshrc config
-    rm $HOME/.zshrc -f
-    curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.zshrc --silent --output $HOME/.zshrc
+# Add .zshrc
+mv $HOME/.zshrc $HOME/.zshrc_original
+curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.zshrc --silent --output $HOME/.zshrc
 
-    # Set ZSH as user's shell
-    chsh -s $(which zsh)
-fi
+# Add starship.toml
+mkdir $HOME/.config
+curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.config/starship.toml --silent --output $HOME/.config/starship.toml
 
-# Install NGINX
-rpm -q "nginx" &> /dev/null
-if [ $? -ne 0 ]; then
-    print "Installing NGINX"
+# Add .tmux.conf
+mv $HOME/.tmux.conf $HOME/.tmux_original.conf
+curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.tmux.conf --silent --output $HOME/.tmux.conf
 
-    # Add the NGINX Repo File
-    printf "[nginx-mainline]\nname=NGINX Mainline Repo\nbaseurl=http://nginx.org/packages/mainline/centos/\$releasever/\$basearch/\ngpgcheck=1\nenabled=1\ngpgkey=https://nginx.org/keys/nginx_signing.key\n" > /etc/yum.repos.d/nginx-mainline.repo
-
-    yum update -y
-    yum install nginx -y
-fi
+# Set ZSH as the user's default shell
+usermod --shell $(which zsh) $SUDO_USER
