@@ -81,28 +81,28 @@ if [ $? -ne 0 ]; then
 fi
 
 # Download starship
-mkdir -p $HOME/.local/bin
+mkdir -p $HOME/.local/bin || true
 wget https://github.com/starship/starship/releases/download/v0.18.0/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
 tar xvzf $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
 mv x86_64-unknown-linux-gnu/starship $HOME/.local/bin/starship
 
 # Add .bashrc
-mv $HOME/.bashrc $HOME/.bashrc_original
+mv $HOME/.bashrc $HOME/.bashrc_original || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.bashrc --silent --output $HOME/.bashrc
 
 # Add .hushlogin
-touch $HOME/.hushlogin
+touch $HOME/.hushlogin || true
 
 # Add .zshrc
-mv $HOME/.zshrc $HOME/.zshrc_original
+mv $HOME/.zshrc $HOME/.zshrc_original || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.zshrc --silent --output $HOME/.zshrc
 
 # Add starship.toml
-mkdir $HOME/.config
+mkdir $HOME/.config || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.config/starship.toml --silent --output $HOME/.config/starship.toml
 
 # Add .tmux.conf
-mv $HOME/.tmux.conf $HOME/.tmux_original.conf
+mv $HOME/.tmux.conf $HOME/.tmux_original.conf || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.tmux.conf --silent --output $HOME/.tmux.conf
 
 # Set ZSH as the user's default shell
