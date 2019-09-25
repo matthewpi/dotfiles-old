@@ -84,7 +84,9 @@ fi
 mkdir -p $HOME/.local/bin || true
 wget https://github.com/starship/starship/releases/download/v0.18.0/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
 tar xvzf $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
-mv x86_64-unknown-linux-gnu/starship $HOME/.local/bin/starship
+mv $HOME/x86_64-unknown-linux-gnu/starship $HOME/.local/bin/starship
+rm $HOME/x86_64-unknown-linux-gnu -rf
+rm $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz -f
 
 # Add .bashrc
 mv $HOME/.bashrc $HOME/.bashrc_original || true
