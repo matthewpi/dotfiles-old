@@ -8,6 +8,12 @@ command_exists() {
     command -v "$@" >/dev/null 2>&1
 }
 
+get_latest_release() {
+    curl --silent "https://api.github.com/repos/$1/releases/latest" |
+    grep '"tag_name":' |
+    sed -E 's/.*"([^"]+)".*/\1/'
+}
+
 # Root User Detection
 if [ "$EUID" -ne 0 ]; then
     print "This script must be ran as the root user."
@@ -81,12 +87,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # Download starship
+VERSION=`get_latest_release "starship/starship"`
+
 mkdir -p $HOME/.local/bin || true
-wget https://github.com/starship/starship/releases/download/v0.18.0/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
-tar xvzf $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz
+wget https://github.com/starship/starship/releases/download/${VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz
+tar xvzf $HOME/starship-x86_64-unknown-linux-gnu.tar.gz
 mv $HOME/x86_64-unknown-linux-gnu/starship $HOME/.local/bin/starship
 rm $HOME/x86_64-unknown-linux-gnu -rf
-rm $HOME/starship-v0.18.0-x86_64-unknown-linux-gnu.tar.gz -rf
+rm $HOME/starship-x86_64-unknown-linux-gnu.tar.gz -rf
 
 # Install oh-my-zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
