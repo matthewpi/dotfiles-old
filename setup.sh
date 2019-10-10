@@ -20,8 +20,13 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Make the HOME variable use the proper user directory
-HOME="/home/$SUDO_USER"
+if [ $SUDO_USER -eq "root"]; then
+    # Set the HOME variable to be the root directory.
+    HOME="/root"
+else
+    # Make the HOME variable use the proper user directory
+    HOME="/home/$SUDO_USER"
+fi
 
 # OS Detection
 if [ -f /etc/os-release ]; then
