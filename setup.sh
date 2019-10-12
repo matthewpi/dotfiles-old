@@ -46,16 +46,6 @@ fi
 # Update any packages
 yum update -y
 
-# Install EPEL Release
-rpm -q "epel-release" &> /dev/null
-if [ $? -ne 0 ]; then
-    print "Installing epel-release"
-    yum install epel-release -y > /dev/null
-fi
-
-# Update any packages
-yum update -y
-
 # Install Curl
 rpm -q "curl" &> /dev/null
 if [ $? -ne 0 ]; then
@@ -75,13 +65,6 @@ rpm -q "git" &> /dev/null
 if [ $? -ne 0 ]; then
     print "Installing git"
     yum install git -y > /dev/null
-fi
-
-# Install htop
-rpm -q "htop" &> /dev/null
-if [ $? -ne 0 ]; then
-    print "Installing htop"
-    yum install htop -y > /dev/null
 fi
 
 # Install ZSH
@@ -104,6 +87,11 @@ rm $HOME/starship-x86_64-unknown-linux-gnu.tar.gz -rf
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     print "Installing oh-my-zsh"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Install zsh-autosuggestions
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 fi
 
 # Add .bashrc
