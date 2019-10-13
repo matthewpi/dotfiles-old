@@ -77,11 +77,19 @@ fi
 # Download starship
 VERSION=`get_latest_release "starship/starship"`
 
-mkdir -p $HOME/.local/bin || true
-wget https://github.com/starship/starship/releases/download/${VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz
-tar xvzf $HOME/starship-x86_64-unknown-linux-gnu.tar.gz
-mv $HOME/starship $HOME/.local/bin/starship
-rm $HOME/starship-x86_64-unknown-linux-gnu.tar.gz -rf
+if [ -f "$HOME/.local/bin/starship" ]; then
+    LATEST_VERSION="starship ${VERSION:1}"
+    CURRENT_VERSION=`starship -V`
+
+    if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+        rm $HOME/.local/bin/starship -rf
+        mkdir -p $HOME/.local/bin || true
+        wget https://github.com/starship/starship/releases/download/${VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz
+        tar xvzf $HOME/starship-x86_64-unknown-linux-gnu.tar.gz
+        mv $HOME/starship $HOME/.local/bin/starship
+        rm $HOME/starship-x86_64-unknown-linux-gnu.tar.gz -rf
+    fi
+fi
 
 # Install oh-my-zsh
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
