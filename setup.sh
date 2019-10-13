@@ -20,7 +20,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-if [ $USER -eq "root" ]; then
+if [ "$SUDO_USER" == "root" ]; then
     # Set the HOME variable to be the root directory.
     HOME="/root"
 else
