@@ -14,18 +14,17 @@ get_latest_release() {
     sed -E 's/.*"([^"]+)".*/\1/'
 }
 
+install_starship() {
+    wget https://github.com/starship/starship/releases/download/${VERSION}/starship-x86_64-unknown-linux-musl.tar.gz
+    tar xvzf $HOME/starship-x86_64-unknown-linux-musl.tar.gz
+    mv $HOME/target/x86_64-unknown-linux-musl/release/starship $HOME/.local/bin/starship
+    rm $HOME/starship-x86_64-unknown-linux-musl.tar.gz $HOME/target -rf
+}
+
 # Root User Detection
 if [ "$EUID" -ne 0 ]; then
     print "This script must be ran as the root user."
     exit 1
-fi
-
-if [ "$SUDO_USER" == "root" ]; then
-    # Set the HOME variable to be the root directory.
-    HOME="/root"
-else
-    # Make the HOME variable use the proper user directory
-    HOME="/home/$SUDO_USER"
 fi
 
 # OS Detection
@@ -42,6 +41,23 @@ if [ "$OS" != "rhel" ] && [ "$OS" != "fedora" ] && [ "$OS" != "centos" ]; then
     print "You must be on a RHEL based operating system to use this."
     exit 1
 fi
+
+if [ "$SUDO_USER" == "root" ]; then
+    # Set the HOME variable to be the root directory
+    HOME="/root"
+else
+    # Make the HOME variable use the proper user directory
+    HOME="/home/$SUDO_USER"
+
+    # Because if you don't run it using sudo $SUDO_USER is empty.
+    if [ "$HOME" == "/home/" ]; then
+        echo "You must run this script using \`sudo\` even as the root user."
+        exit 1
+    fi
+fi
+
+# Switch to the user's home directory
+cd $HOME
 
 # Update any packages
 yum update -y
@@ -74,21 +90,16 @@ if [ $? -ne 0 ]; then
     yum install zsh -y > /dev/null
 fi
 
-# Download starship
-install_starship() {
-    wget https://github.com/starship/starship/releases/download/${VERSION}/starship-x86_64-unknown-linux-musl.tar.gz
-    tar xvzf $HOME/starship-x86_64-unknown-linux-musl.tar.gz
-    mv $HOME/target/x86_64-unknown-linux-musl/release/starship $HOME/.local/bin/starship
-    rm $HOME/starship-x86_64-unknown-linux-musl.tar.gz $HOME/target -rf
-}
-
+# Get the latest starship version
 VERSION=`get_latest_release "starship/starship"`
 
+# Check if starship is already installed
 if [ -f "$HOME/.local/bin/starship" ]; then
     print "Starship is already installed, checking if an update is available.."
     LATEST_VERSION="starship ${VERSION:1}"
     CURRENT_VERSION=`starship -V`
 
+    # Check if starship is outdated
     if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
         print "Updating ${CURRENT_VERSION} to ${LATEST_VERSION}"
         rm $HOME/.local/bin/starship -rf
@@ -113,15 +124,22 @@ if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 fi
 
+# Install zsh-syntax-highlighting
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+fi
+
 # Add .bashrc
-mv $HOME/.bashrc $HOME/.bashrc_original || true
+rm $HOME/.bashrc || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.bashrc --silent --output $HOME/.bashrc
 
 # Add .hushlogin
-touch $HOME/.hushlogin || true
+if [ ! -f "$HOME/.hushlogin" ]; then
+    touch $HOME/.hushlogin || true
+fi
 
 # Add .zshrc
-mv $HOME/.zshrc $HOME/.zshrc_original || true
+rm $HOME/.zshrc || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.zshrc --silent --output $HOME/.zshrc
 
 # Add starship.toml
@@ -129,7 +147,7 @@ mkdir $HOME/.config || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.config/starship.toml --silent --output $HOME/.config/starship.toml
 
 # Add .tmux.conf
-mv $HOME/.tmux.conf $HOME/.tmux_original.conf || true
+rm $HOME/.tmux.conf || true
 curl https://raw.githubusercontent.com/matthewpi/dotfiles/master/.tmux.conf --silent --output $HOME/.tmux.conf
 
 # Set ZSH as the user's default shell

@@ -2,7 +2,7 @@
 export ZSH=$HOME/.oh-my-zsh
 
 # Enable plugins
-plugins=(zsh-autosuggestions)
+plugins=(zsh-autosuggestions zsh-syntax-highlighting)
 
 # Initialize oh-my-zsh
 source $ZSH/oh-my-zsh.sh
