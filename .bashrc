@@ -2,7 +2,7 @@
 
 # Include global bashrc file.
 if [ -f /etc/bashrc ]; then
-        . /etc/bashrc
+    . /etc/bashrc
 fi
 
 # User specific environment
