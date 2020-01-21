@@ -17,7 +17,7 @@ get_latest_release() {
 install_starship() {
     wget https://github.com/starship/starship/releases/download/${VERSION}/starship-x86_64-unknown-linux-musl.tar.gz
     tar xvzf $HOME/starship-x86_64-unknown-linux-musl.tar.gz
-    mv $HOME/target/x86_64-unknown-linux-musl/release/starship $HOME/.local/bin/starship
+    mv $HOME/starship $HOME/.local/bin/starship
     rm $HOME/starship-x86_64-unknown-linux-musl.tar.gz $HOME/target -rf
 }
 
